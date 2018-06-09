@@ -2,7 +2,6 @@ package redesii.ifb.com.simplesmtp;
 
 import java.net.*;
 import java.io.*;
-import java.sql.Time;
 
 public class SMTP {
     private String from;
@@ -32,11 +31,15 @@ public class SMTP {
     public String send(){
         try {
             Socket smtpPipe;
+            DataOutputStream os;
+            DataInputStream is;
+
             InputStream inn;
             OutputStream outt;
             String response;
 
             smtpPipe = new Socket(mailHost, SMTP_PORT);
+
 
             if (smtpPipe == null) {
                 return "Não foi possivel criar conexão com o servidor";
@@ -46,55 +49,40 @@ public class SMTP {
                 return "Socket nao esta conectado.";
             }
 
-            inn = smtpPipe.getInputStream();
-            outt = smtpPipe.getOutputStream();
+            smtpPipe.setKeepAlive(false);
+            smtpPipe.setSoLinger(true, 10);
+            smtpPipe.setReuseAddress(true);
+            smtpPipe.setTcpNoDelay(true);
 
-            if (inn == null || outt == null) {
-                return "Falha ao abrir socket.";
+            inn = smtpPipe.getInputStream();
+            //outt = smtpPipe.getOutputStream();
+
+            os = new DataOutputStream(smtpPipe.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(inn));
+
+            os.writeBytes("HELO " + from + "\n");
+            in.readLine();
+            os.writeBytes("MAIL From: " + from + "\n");
+            in.readLine();
+            os.writeBytes("RCPT TO: " + to + "\n");
+            in.readLine();
+            os.writeBytes("DATA\r\n");
+            os.writeBytes("SUBJECT: " + subject + "\r\n");
+            os.writeBytes("\r\n"+message+"\r\n");
+            os.writeBytes("\r\n.\r\n");
+            try{
+                Thread.sleep(1000);
+            }catch (Exception e){
+                return e.getMessage();
             }
 
-            in = new BufferedReader(new InputStreamReader(inn));
-            out = new PrintWriter(new OutputStreamWriter(outt), true);
+            os.writeBytes("QUIT\n");
 
-            String initialID = in.readLine();
-
-            out.println("HELO " + from);
-            response = in.readLine();
-
-            out.println("MAIL From: " + from);
-            response = in.readLine();
-
-            out.println("RCPT TO: " + to);
-            in.readLine();
-
-
-            //out.println("jihugyj");
-            // gambiarra para funcionar o comando DATA
-
-            String commando = "DATA\r\n" +
-                    "hueahuea\r\n" +
-                    "\r\n.\r\n";
-            out.println(commando );
-
-
-            //in.readLine();
-            // :)
-            //out.println("");
-
-            //
-            // out.println("From:" + from);
-
-            //out.println("\r\n.\r\n");
-            //out.println("\n\n"+"."+"\n\n");
-
-
-
-           out.println("QUIT");
-
-            return response;
-
+            return "Mensagem enviada com sucesso!";
         }catch (IOException e){
             return e.getMessage();
         }
     }
 }
+
+//https://stackoverflow.com/questions/17440795/send-a-string-instead-of-byte-through-socket-in-java

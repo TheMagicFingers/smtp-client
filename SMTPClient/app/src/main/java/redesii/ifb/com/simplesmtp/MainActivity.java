@@ -2,18 +2,11 @@ package redesii.ifb.com.simplesmtp;
 
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import java.net.UnknownHostException;
 
 public class MainActivity extends AppCompatActivity{
@@ -43,10 +36,6 @@ public class MainActivity extends AppCompatActivity{
         send     = (Button)   findViewById(R.id.send);
         msg_erro = "";
 
-        from.setText("gustavo");
-        to.setText("eu");
-        host.setText("10.98.0.249");
-        message.setText("uhigjrokpt~hlhçklgjkfhk");
         Thread.setDefaultUncaughtExceptionHandler(new UnCaughtException(MainActivity.this));
 
         send.setOnClickListener(new View.OnClickListener() {
